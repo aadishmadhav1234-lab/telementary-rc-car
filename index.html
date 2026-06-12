@@ -115,10 +115,22 @@
                 </div>
 
                 <div class="h-24 grid grid-cols-3 gap-4 shrink-0">
-                    <div class="bg-slate-900/40 border border-slate-800/60 p-4 rounded-xl flex flex-col justify-center">
-                        <p class="text-[11px] text-slate-400 uppercase font-bold tracking-widest">Chassis Pitch</p>
-                        <p id="slopeText" class="text-3xl text-cyan-400 font-bold mt-0.5">0.0°</p>
+                    <div class="bg-slate-900/40 border border-slate-800/60 p-3 rounded-xl flex items-center justify-between">
+                        <div>
+                            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-widest">Chassis Attitude</p>
+                            <div class="flex gap-3 mt-0.5">
+                                <div><span class="text-[9px] text-slate-500 block">PITCH</span><span id="slopeText" class="text-xl text-cyan-400 font-bold">0.0°</span></div>
+                                <div><span class="text-[9px] text-slate-500 block">ROLL</span><span id="rollText" class="text-xl text-amber-500 font-bold">0.0°</span></div>
+                            </div>
+                        </div>
+                        <div class="w-12 h-12 rounded-full border-2 border-slate-800/80 relative flex items-center justify-center bg-slate-950 shadow-inner shrink-0">
+                            <div class="absolute w-full h-[1px] bg-slate-800/60"></div>
+                            <div class="absolute h-full w-[1px] bg-slate-800/60"></div>
+                            <div class="absolute w-4 h-4 rounded-full border border-cyan-500/20"></div>
+                            <div id="levelBubble" class="w-2.5 h-2.5 rounded-full bg-cyan-400 absolute transition-transform duration-75 ease-out shadow-[0_0_8px_#22d3ee]" style="transform: translate(0px, 0px);"></div>
+                        </div>
                     </div>
+                    
                     <div class="bg-slate-900/40 border border-slate-800/60 p-4 rounded-xl flex flex-col justify-center">
                         <div class="flex justify-between items-end mb-1.5">
                             <p class="text-[11px] text-slate-400 uppercase font-bold tracking-widest">Proximity</p>
@@ -128,6 +140,7 @@
                             <div id="gapIndicator" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 100%"></div>
                         </div>
                     </div>
+
                     <div class="bg-slate-900/40 border border-slate-800/60 p-4 rounded-xl flex flex-col justify-center text-right">
                         <p class="text-[11px] text-slate-400 uppercase font-bold tracking-widest">Sea Level Base</p>
                         <p id="seaLevelText" class="text-3xl text-slate-100 font-bold mt-0.5">3.22m</p>
@@ -170,20 +183,20 @@
             sessionIDInput: document.getElementById('sessionIDInput'), masterPasswordInput: document.getElementById('masterPasswordInput'),
             calibScreen: document.getElementById('calibScreen'), mainHud: document.getElementById('mainHud'),
             fullViewCameraStream: document.getElementById('fullViewCameraStream'), speedDial: document.getElementById('speedDial'), 
-            speedText: document.getElementById('speedText'), slopeText: document.getElementById('slopeText'), 
+            speedText: document.getElementById('speedText'), slopeText: document.getElementById('slopeText'),
+            rollText: document.getElementById('rollText'), levelBubble: document.getElementById('levelBubble'),
             rpmText: document.getElementById('rpmText'), seaLevelText: document.getElementById('seaLevelText'),
             settingsModal: document.getElementById('settingsModal'), inputTopSpeed: document.getElementById('inputTopSpeed'),
             inputSeaLevel: document.getElementById('inputSeaLevel'), gapIndicator: document.getElementById('gapIndicator'),
             gapPercentageText: document.getElementById('gapPercentageText')
         };
 
-        // --- FLUID VIEW ENGINE ROUTING ---
         function switchFluidView(hideElement, showElement) {
             hideElement.classList.replace('visible-state', 'hidden-state');
             showElement.classList.replace('hidden-state', 'visible-state');
         }
 
-        // --- HARDWARE INTERACTION INPUT HANDLING (TV/LAPTOP) ---
+        // --- HARDWARE INTERACTION OVERRIDES (TV / LAPTOP) ---
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' || e.key === ' ') {
                 if (document.activeElement && document.activeElement.tagName !== 'INPUT') {
@@ -193,14 +206,14 @@
             }
         });
 
-        // --- CORE HARDWARE ORIENTATION SECURITY SHAKING (iOS COMPATIBILITY) ---
+        // --- PERMISSION GATEWAY (iOS SENSOR BYPASS) ---
         async function requestIOSPermissions() {
             if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                try { await DeviceOrientationEvent.requestPermission(); } catch (e) { console.warn("Permissions verification block bypassed."); }
+                try { await DeviceOrientationEvent.requestPermission(); } catch (e) { console.warn("Permissions locked."); }
             }
         }
 
-        // --- AUTH SUBSYSTEM SEQUENCING ---
+        // --- GATEWAY EVENTS ---
         document.getElementById('btnSelectHost').addEventListener('click', () => {
             requestIOSPermissions();
             ConfigEngine.auth.selectedRole = 'HOST';
@@ -235,7 +248,7 @@
             }
         });
 
-        // --- CAMERA HARDWARE TRANSCEIVER ENGINES ---
+        // --- STREAM PROCESSING ---
         function initializeChassisCameraPipe() {
             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ 
@@ -243,8 +256,8 @@
                 }).then(stream => {
                     ConfigEngine.media.stream = stream;
                     elements.fullViewCameraStream.srcObject = stream;
-                    elements.fullViewCameraStream.play().catch(e => console.warn("Optical engine pipeline spin-up delayed safely."));
-                }).catch(() => console.warn("Optical device stream initialization fault."));
+                    elements.fullViewCameraStream.play().catch(() => {});
+                }).catch(() => console.warn("Optical device initialization error."));
             }
         }
 
@@ -254,7 +267,7 @@
             initializeChassisCameraPipe();
         });
 
-        // --- FLUID STABLE CONTROLS OVERLAYS ---
+        // --- MODERN MODALS SUBSYSTEMS ---
         document.getElementById('settingsBtn').addEventListener('click', () => {
             elements.inputTopSpeed.value = ConfigEngine.performance.topSpeed;
             elements.inputSeaLevel.value = ConfigEngine.performance.defaultSeaLevel;
@@ -278,7 +291,7 @@
             setTimeout(() => document.body.style.backgroundColor = "#020617", 150);
         });
 
-        // --- ORIENTATION INITIALIZATION MATRIX HANDLERS ---
+        // --- ENGINE SYSTEMS TRANSITION ROUTER ---
         document.getElementById('btnSetZero').addEventListener('click', () => {
             const getBaseline = (e) => {
                 ConfigEngine.performance.tiltAngleOffset = e.beta || 0;
@@ -310,7 +323,7 @@
                     const call = ConfigEngine.peer.call('apex-07-' + targetSessionId, dynamicMediaStreamPipe);
                     call.on('stream', (stream) => {
                         elements.fullViewCameraStream.srcObject = stream;
-                        elements.fullViewCameraStream.play().catch(e => console.warn("Secondary display canvas playback forcing executed."));
+                        elements.fullViewCameraStream.play().catch(() => {});
                     });
                 }
             });
@@ -326,7 +339,7 @@
 
         document.getElementById('endHostBtn').addEventListener('click', () => window.location.reload());
 
-        // --- REAL-TIME CALCULATIONS CORE RENDERING ---
+        // --- MATH RENDER CONTEXT METRICS ENGINE ---
         function processRealtimeSpeedometerPipeline() {
             ConfigEngine.state.currentSpeed += (ConfigEngine.state.simulatedTarget - ConfigEngine.state.currentSpeed) * 0.075;
             const velocityValue = Math.max(0, ConfigEngine.state.currentSpeed);
@@ -364,7 +377,16 @@
 
             if (window.DeviceOrientationEvent) {
                 window.addEventListener('deviceorientation', (e) => {
-                    elements.slopeText.textContent = ((e.beta || 0) - ConfigEngine.performance.tiltAngleOffset).toFixed(1) + '°';
+                    const pitch = (e.beta || 0) - ConfigEngine.performance.tiltAngleOffset;
+                    const roll = e.gamma || 0;
+
+                    elements.slopeText.textContent = pitch.toFixed(1) + '°';
+                    elements.rollText.textContent = roll.toFixed(1) + '°';
+
+                    // Dynamic Horizon vector alignment mapping (Max limits capped inside circle bounding parameters)
+                    const moveX = Math.max(-14, Math.min(14, roll * 1.2));
+                    const moveY = Math.max(-14, Math.min(14, pitch * 1.2));
+                    elements.levelBubble.style.transform = `translate(${moveX}px, ${moveY}px)`;
                 });
             }
 
