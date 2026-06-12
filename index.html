@@ -29,6 +29,19 @@
             outline: 2px solid #06b6d4; outline-offset: 2px;
             box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
         }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 11px;
+            font-weight: bold;
+            tracking-widest: uppercase;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -58,17 +71,19 @@
             
             <div id="roleSelectionWrapper" class="space-y-4">
                 <button id="btnSelectHost" tabindex="0" class="w-full py-4 bg-cyan-700 hover:bg-cyan-600 text-white font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg text-lg">Register Host Device</button>
-                <button id="btnSelectMonitor" tabindex="0" class="w-full py-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold uppercase tracking-widest rounded-xl transition-all shadow-lg text-lg">Link Secondary Monitor</button>
+                <button id="btnSelectMonitor" tabindex="0" class="w-full py-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-bold uppercase tracking-widest rounded-xl transition-all">Link Secondary Monitor</button>
             </div>
 
             <div id="credentialsForm" class="hidden-state text-left space-y-4">
                 <div id="sessionField" class="hidden-state">
                     <label class="text-[11px] text-slate-400 uppercase tracking-widest block mb-1">Target Transceiver ID</label>
-                    <input id="sessionIDInput" type="text" tabindex="0" placeholder="0000" maxlength="4" class="w-full bg-slate-950 border-2 border-slate-800 p-4 rounded-xl text-cyan-400 text-center font-bold tracking-[0.5em] outline-none">
+                    <input id="sessionIDInput" type="text" tabindex="0" placeholder="0000" maxlength="4" class="w-full bg-slate-950 border-2 border-slate-800 p-4 rounded-xl text-cyan-400 text-center font-bold tracking-widest outline-none">
+                    <div id="sessionIDError" class="error-message">Wrong ID</div>
                 </div>
                 <div>
                     <label class="text-[11px] text-slate-400 uppercase tracking-widest block mb-1">Master Access Key</label>
                     <input id="masterPasswordInput" type="password" tabindex="0" placeholder="••••••••" class="w-full bg-slate-950 border-2 border-slate-800 p-4 rounded-xl text-white text-center font-bold tracking-widest outline-none">
+                    <div id="passwordError" class="error-message">Wrong Password</div>
                 </div>
                 <button id="btnSubmitAuth" tabindex="0" class="w-full py-4 bg-cyan-600 hover:bg-cyan-500 text-white font-bold uppercase tracking-widest rounded-xl shadow-lg">Authorize Node Link</button>
                 <button id="btnCancelAuth" tabindex="0" class="w-full text-center text-slate-500 text-xs uppercase font-bold hover:text-slate-300 pt-2 tracking-widest">Back to Terminal</button>
@@ -84,7 +99,7 @@
             <p class="text-slate-400 text-sm mb-8 tracking-wide">Mount the host device securely inside the chassis bay, then baseline horizontal vectors.</p>
             
             <button id="btnSetZero" tabindex="0" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold uppercase tracking-widest rounded-xl shadow-lg mb-4 text-lg">Calibrate Surface 0°</button>
-            <button id="btnSkipCalib" tabindex="0" class="w-full py-3 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-xl">Skip & Continue</button>
+            <button id="btnSkipCalib" tabindex="0" class="w-full py-3 bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-xl">Skip Calibration</button>
             
             <p class="text-xs text-emerald-400 font-bold tracking-widest mt-6 bg-emerald-950/40 py-2 rounded-lg border border-emerald-900/30 uppercase">100% Secure & Robust</p>
         </div>
@@ -98,17 +113,17 @@
                 
                 <button id="findBtn" tabindex="0" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg font-bold uppercase text-xs tracking-widest">Find</button>
                 <button id="settingsBtn" tabindex="0" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 rounded-lg font-bold uppercase text-xs tracking-widest">Settings</button>
-                <button id="previewBtn" tabindex="0" class="px-4 py-1.5 bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-700/50 text-cyan-400 rounded-lg font-bold uppercase text-xs tracking-widest">Preview Mode</button>
+                <button id="previewBtn" tabindex="0" class="px-4 py-1.5 bg-cyan-950/40 hover:bg-cyan-900/60 border border-cyan-700/50 text-cyan-400 rounded-lg font-bold uppercase text-xs tracking-widest">Preview</button>
                 <button id="gearBtn" tabindex="0" class="px-4 py-1.5 bg-slate-950 border border-cyan-500/40 text-cyan-400 rounded-lg font-bold uppercase text-xs tracking-widest">Gear: FWD</button>
             </div>
-            <button id="endHostBtn" tabindex="0" class="px-4 py-1.5 bg-red-950/60 text-red-400 hover:bg-red-600 hover:text-white border border-red-900/50 rounded-lg font-bold uppercase text-xs tracking-widest">Disconnect</button>
+            <button id="endHostBtn" tabindex="0" class="px-4 py-1.5 bg-red-950/60 text-red-400 hover:bg-red-600 hover:text-white border border-red-900/50 rounded-lg font-bold uppercase text-xs tracking-widest">End Session</button>
         </div>
 
         <div class="flex-1 flex flex-row gap-4 h-full min-h-0">
             
             <div class="w-[80%] flex flex-col gap-4 h-full">
                 <div class="flex-1 rounded-2xl overflow-hidden border border-slate-800 bg-black relative shadow-2xl">
-                    <div class="absolute top-3 left-3 px-2.5 py-1 bg-black/80 rounded-md text-[10px] font-bold text-cyan-400 tracking-widest uppercase z-10 flex items-center gap-2 border border-slate-800">
+                    <div class="absolute top-3 left-3 px-2.5 py-1 bg-black/80 rounded-md text-[10px] font-bold text-cyan-400 tracking-widest uppercase z-10 flex items-center gap-2 border border-slate-700/50">
                         <span class="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-ping"></span> FLUID PREVIEW STREAM
                     </div>
                     <video id="fullViewCameraStream" autoplay playsinline muted class="w-full h-full object-cover"></video>
@@ -127,7 +142,7 @@
                             <div class="absolute w-full h-[1px] bg-slate-800/60"></div>
                             <div class="absolute h-full w-[1px] bg-slate-800/60"></div>
                             <div class="absolute w-4 h-4 rounded-full border border-cyan-500/20"></div>
-                            <div id="levelBubble" class="w-2.5 h-2.5 rounded-full bg-cyan-400 absolute transition-transform duration-75 ease-out shadow-[0_0_8px_#22d3ee]" style="transform: translate(0px, 0px);"></div>
+                            <div id="levelBubble" class="w-2.5 h-2.5 rounded-full bg-cyan-400 absolute transition-transform duration-75 ease-out shadow-[0_0_8px_#22d3ee]" style="transform: translate(0px, 0px)"></div>
                         </div>
                     </div>
                     
@@ -181,6 +196,7 @@
             authScreen: document.getElementById('authScreen'), roleSelectionWrapper: document.getElementById('roleSelectionWrapper'),
             credentialsForm: document.getElementById('credentialsForm'), sessionField: document.getElementById('sessionField'),
             sessionIDInput: document.getElementById('sessionIDInput'), masterPasswordInput: document.getElementById('masterPasswordInput'),
+            sessionIDError: document.getElementById('sessionIDError'), passwordError: document.getElementById('passwordError'),
             calibScreen: document.getElementById('calibScreen'), mainHud: document.getElementById('mainHud'),
             fullViewCameraStream: document.getElementById('fullViewCameraStream'), speedDial: document.getElementById('speedDial'), 
             speedText: document.getElementById('speedText'), slopeText: document.getElementById('slopeText'),
@@ -220,6 +236,7 @@
             elements.roleSelectionWrapper.classList.add('hidden-state');
             elements.credentialsForm.classList.remove('hidden-state');
             elements.sessionField.classList.add('hidden-state');
+            elements.passwordError.classList.remove('show');
         });
 
         document.getElementById('btnSelectMonitor').addEventListener('click', () => {
@@ -227,15 +244,35 @@
             elements.roleSelectionWrapper.classList.add('hidden-state');
             elements.credentialsForm.classList.remove('hidden-state');
             elements.sessionField.classList.remove('hidden-state');
+            elements.passwordError.classList.remove('show');
+            elements.sessionIDError.classList.remove('show');
         });
 
         document.getElementById('btnCancelAuth').addEventListener('click', () => {
             elements.credentialsForm.classList.add('hidden-state');
             elements.roleSelectionWrapper.classList.remove('hidden-state');
+            elements.passwordError.classList.remove('show');
+            elements.sessionIDError.classList.remove('show');
+            elements.masterPasswordInput.value = '';
+            elements.sessionIDInput.value = '';
         });
 
         document.getElementById('btnSubmitAuth').addEventListener('click', () => {
-            if (elements.masterPasswordInput.value === ConfigEngine.auth.password) {
+            let isValid = true;
+            elements.passwordError.classList.remove('show');
+            elements.sessionIDError.classList.remove('show');
+
+            if (elements.masterPasswordInput.value !== ConfigEngine.auth.password) {
+                elements.passwordError.classList.add('show');
+                isValid = false;
+            }
+
+            if (ConfigEngine.auth.selectedRole === 'MONITOR' && elements.sessionIDInput.value === '') {
+                elements.sessionIDError.classList.add('show');
+                isValid = false;
+            }
+
+            if (isValid && elements.masterPasswordInput.value === ConfigEngine.auth.password) {
                 if (ConfigEngine.auth.selectedRole === 'HOST') {
                     ConfigEngine.auth.sessionId = Math.floor(1000 + Math.random() * 9000).toString();
                     switchFluidView(elements.authScreen, elements.calibScreen);
@@ -245,6 +282,8 @@
                     switchFluidView(elements.authScreen, elements.mainHud);
                     initializeMonitorTelemetryLink(ConfigEngine.auth.sessionId);
                 }
+                elements.masterPasswordInput.value = '';
+                elements.sessionIDInput.value = '';
             }
         });
 
@@ -383,7 +422,6 @@
                     elements.slopeText.textContent = pitch.toFixed(1) + '°';
                     elements.rollText.textContent = roll.toFixed(1) + '°';
 
-                    // Dynamic Horizon vector alignment mapping (Max limits capped inside circle bounding parameters)
                     const moveX = Math.max(-14, Math.min(14, roll * 1.2));
                     const moveY = Math.max(-14, Math.min(14, pitch * 1.2));
                     elements.levelBubble.style.transform = `translate(${moveX}px, ${moveY}px)`;
